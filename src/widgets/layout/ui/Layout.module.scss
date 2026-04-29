@@ -1,0 +1,253 @@
+.appShell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.siteHeader {
+  background: #fff;
+  border-bottom: 1px solid #d9dce4;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.headerInner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: space-between;
+  min-height: 68px;
+  position: relative;
+}
+
+.logo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0b66ff;
+}
+
+.burgerBtn {
+  display: none;
+}
+
+.menu {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  flex: 1;
+}
+
+.menuLink,
+.cartBtn {
+  padding: 0.4rem 0.65rem;
+  border-radius: 8px;
+}
+
+.active {
+  background: transparent;
+  color: #0b66ff;
+  text-decoration: underline;
+}
+
+.cartIcon {
+  position: relative;
+  padding: 0.25rem;
+  border-radius: 12px;
+}
+
+.cartBadge {
+  position: absolute;
+  right: -6px;
+  top: -6px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #0b66ff;
+  color: #fff;
+  font-weight: 900;
+  font-size: 0.75rem;
+  display: grid;
+  place-items: center;
+  padding: 0 6px;
+}
+
+.pageContent {
+  padding: 1.5rem 0 2rem;
+  flex: 1;
+}
+
+.siteFooter {
+  border-top: 1px solid #d9dce4;
+  background: #fff;
+  margin-top: auto;
+}
+
+.footerGrid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.7fr 0.9fr;
+  gap: 0.75rem;
+  padding: 1rem 0;
+  color: #596074;
+  font-size: 0.92rem;
+}
+
+.footerCol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.footerAboutText {
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.footerLogo {
+  width: 74px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+}
+
+.footerLinksTitle,
+.footerSubscribeTitle {
+  font-weight: 900;
+  color: #111827;
+}
+
+.footerLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.footerLinks a {
+  color: #596074;
+  font-weight: 600;
+}
+
+.footerSubscribeRow {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.footerEmail {
+  flex: 1;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid #d7dce4;
+  background: #f5f7fb;
+  padding: 0 0.65rem;
+  outline: none;
+}
+
+.footerEnvelope {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #f5f7fb;
+  border: 1px solid #d7dce4;
+  position: relative;
+}
+
+.footerEnvelope::before,
+.footerEnvelope::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 2px;
+  background: rgba(0, 0, 0, 0.55);
+  transform-origin: center;
+}
+
+.footerEnvelope::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.footerEnvelope::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+@media (max-width: 900px) {
+  .footerGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .headerInner {
+    min-height: 64px;
+    padding: 0.55rem 0;
+    gap: 0.65rem;
+  }
+
+  .burgerBtn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid #d7dce4;
+    background: #fff;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .burgerBtn span {
+    width: 18px;
+    height: 2px;
+    border-radius: 2px;
+    background: #111827;
+    transition: transform 0.18s ease, opacity 0.18s ease;
+  }
+
+  .burgerBtnOpen span:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+  }
+
+  .burgerBtnOpen span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .burgerBtnOpen span:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+
+  .menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    display: none;
+    flex-direction: column;
+    gap: 0.4rem;
+    background: #fff;
+    border: 1px solid #d9dce4;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(17, 24, 39, 0.1);
+    padding: 0.5rem;
+    z-index: 20;
+  }
+
+  .menuOpen {
+    display: flex;
+  }
+
+  .menuLink {
+    display: block;
+    padding: 0.6rem 0.75rem;
+  }
+
+  .cartIcon {
+    margin-left: auto;
+  }
+}

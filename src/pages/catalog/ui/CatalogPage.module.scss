@@ -1,0 +1,39 @@
+.sectionHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.catalogFilters {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.control {
+  border: 1px solid #c7cddd;
+  border-radius: 10px;
+  padding: 0.6rem 0.7rem;
+  background: #fff;
+}
+
+.productsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.emptyState {
+  border: 1px solid #d8dce6;
+  border-radius: 14px;
+  background: #fff;
+  padding: 1.25rem;
+}
+
+@media (max-width: 680px) {
+  .catalogFilters {
+    grid-template-columns: 1fr;
+  }
+}

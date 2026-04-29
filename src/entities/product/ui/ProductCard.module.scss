@@ -1,0 +1,143 @@
+.productCard {
+  background: #d9d9d9;
+  border: 0;
+  border-radius: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.productImageWrap {
+  position: relative;
+  background: #cfcfcf;
+  height: 228px;
+}
+
+.productImage {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  display: block;
+  padding: 0;
+  z-index: 1;
+}
+
+.productImageImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.productImageText {
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 800;
+  font-size: 2.15rem;
+  line-height: 1.05;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);
+}
+
+.ratingRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.85rem;
+}
+
+.favoriteBtnOn {
+  color: #d62828;
+}
+
+.productRating {
+  display: flex;
+  gap: 3px;
+}
+
+.favoriteBtnInline {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  color: #d62828;
+  cursor: pointer;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+
+.favoriteBtnInline path {
+  fill: transparent;
+  transition: fill 0.2s ease;
+}
+
+.favoriteBtnOn path {
+  fill: currentColor;
+}
+
+.star {
+  font-size: 18px;
+  line-height: 1;
+  color: rgba(251, 191, 36, 0.35);
+}
+
+.starFilled {
+  color: #fbbf24;
+}
+
+.starEmpty {
+  color: rgba(251, 191, 36, 0.45);
+}
+
+.productInfo {
+  padding: 0.9rem 0.95rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.productName {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.productBottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.productPrice {
+  font-weight: 900;
+  font-size: 1.1rem;
+}
+
+.productBottomRight {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.productStock {
+  font-weight: 800;
+  color: #111827;
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+.productCartBtn {
+  border: 0;
+  border-radius: 999px;
+  background: #0b66ff;
+  color: #fff;
+  font-weight: 800;
+  height: 32px;
+  padding: 0 1.1rem;
+  white-space: nowrap;
+  width: 160px;
+  cursor: pointer;
+}
