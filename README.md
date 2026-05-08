@@ -14,6 +14,9 @@ Frontend-часть интернет-магазина на React + React Router 
 - Адаптивная верстка (от 320px)
 - Mock-данные без подключения backend
 
+## Видеодемонстрация с связкой с бекенд
+https://drive.google.com/file/d/1_pn7abUNj2prB32Z9CbqQViNUs2aKiPN/view?usp=sharing
+
 ## Запуск
 
 ```bash
