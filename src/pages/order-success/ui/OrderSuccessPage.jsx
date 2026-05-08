@@ -1,15 +1,26 @@
+import { useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
 import styles from './OrderSuccessPage.module.scss'
 
 function OrderSuccessPage() {
   const navigate = useNavigate()
   const location = useLocation()
+  const order = useSelector((s) => s.orders.lastOrder)
+
   const closeModal = () => {
-    if (location.state?.backgroundLocation) {
-      navigate(-1)
+    const backgroundLocation = location.state?.backgroundLocation
+    if (backgroundLocation?.pathname) {
+      navigate(
+        {
+          pathname: backgroundLocation.pathname,
+          search: backgroundLocation.search ?? '',
+          hash: backgroundLocation.hash ?? '',
+        },
+        { replace: true },
+      )
       return
     }
-    navigate('/catalog')
+    navigate('/catalog', { replace: true })
   }
 
   return (
@@ -26,9 +37,21 @@ function OrderSuccessPage() {
 
         <div className={styles.modalSuccessBody}>
           <div className={styles.modalSuccessText}>
-            Заказ оформлен. Доставка
+            Заказ оформлен
+            {order?.order_number ? (
+              <>
+                <br />
+                Номер: {order.order_number}
+              </>
+            ) : null}
+            {order?.total_amount != null ? (
+              <>
+                <br />
+                Сумма: {order.total_amount} ₽
+              </>
+            ) : null}
             <br />
-            в течении 5 дней
+            Доставка в течение 5 дней
           </div>
         </div>
       </div>

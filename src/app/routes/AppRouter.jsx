@@ -1,6 +1,10 @@
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
-import { PRODUCTS } from '../../entities/product/model/products'
-import { useCart } from '../../features/cart/model/useCart'
+import { loadCategories, loadProducts } from '../../entities/product/model/productsSlice'
+import { addToCartApi, refreshCart, setCartLineQuantity } from '../../features/cart/model/cartSlice'
+import { selectEnrichedCartItems } from '../../features/cart/model/selectors'
+import { loadOrders } from '../../features/orders/model/ordersSlice'
 import Layout from '../../widgets/layout/ui/Layout'
 import AboutPage from '../../pages/about/ui/AboutPage'
 import AuthPage from '../../pages/auth/ui/AuthPage'
@@ -14,31 +18,38 @@ import OrderSuccessPage from '../../pages/order-success/ui/OrderSuccessPage'
 import ProductPage from '../../pages/product/ui/ProductPage'
 
 function AppRouter() {
+  const dispatch = useDispatch()
   const location = useLocation()
   const state = location.state
   const backgroundLocation = state?.backgroundLocation
 
-  const {
-    cartItems,
-    cartTotal,
-    selectedIds,
-    selectedTotal,
-    cartItemsCount,
-    lastOrder,
-    addToCart,
-    changeQuantity,
-    removeFromCart,
-    toggleSelected,
-    placeOrder,
-  } = useCart()
+  const products = useSelector((s) => s.products.items)
+  const cartItems = useSelector(selectEnrichedCartItems)
+  const cartTotal = useSelector((s) => s.cart.total)
+  const lastOrder = useSelector((s) => s.orders.lastOrder)
+
+  useEffect(() => {
+    dispatch(loadCategories())
+    dispatch(loadProducts({ page: 1, limit: 100 }))
+    dispatch(refreshCart())
+    dispatch(loadOrders())
+  }, [dispatch])
+
+  const addToCart = (product) => {
+    dispatch(addToCartApi({ productId: product.id, quantity: 1 }))
+  }
+
+  const changeQuantity = (lineId, quantity) => {
+    dispatch(setCartLineQuantity({ lineId, quantity }))
+  }
 
   return (
     <>
       <Routes location={backgroundLocation || location}>
-        <Route path="/" element={<Layout cartItemsCount={cartItemsCount} />}>
-          <Route index element={<HomePage products={PRODUCTS.slice(0, 8)} onAddToCart={addToCart} />} />
-          <Route path="catalog" element={<CatalogPage products={PRODUCTS} onAddToCart={addToCart} />} />
-          <Route path="product/:productId" element={<ProductPage products={PRODUCTS} onAddToCart={addToCart} />} />
+        <Route path="/" element={<Layout />}>
+          <Route index element={<HomePage products={products.slice(0, 8)} onAddToCart={addToCart} />} />
+          <Route path="catalog" element={<CatalogPage products={products} onAddToCart={addToCart} />} />
+          <Route path="product/:productId" element={<ProductPage onAddToCart={addToCart} />} />
           {!backgroundLocation ? <Route path="auth" element={<AuthPage />} /> : null}
           {!backgroundLocation ? (
             <Route
@@ -46,26 +57,19 @@ function AppRouter() {
               element={
                 <CartPage
                   cartItems={cartItems}
-                  total={cartTotal}
-                  selectedIds={selectedIds}
-                  selectedTotal={selectedTotal}
+                  cartTotal={cartTotal}
                   onChangeQuantity={changeQuantity}
-                  onRemoveItem={removeFromCart}
-                  onToggleSelected={toggleSelected}
                 />
               }
             />
           ) : null}
           {!backgroundLocation ? (
-            <Route
-              path="checkout"
-              element={<CheckoutPage cartItems={cartItems} total={selectedTotal} selectedIds={selectedIds} onPlaceOrder={placeOrder} />}
-            />
+            <Route path="checkout" element={<CheckoutPage cartItems={cartItems} total={cartTotal} />} />
           ) : null}
           {!backgroundLocation ? (
             <Route
               path="checkout/success"
-              element={lastOrder ? <OrderSuccessPage order={lastOrder} /> : <Navigate to="/catalog" replace />}
+              element={lastOrder ? <OrderSuccessPage /> : <Navigate to="/catalog" replace />}
             />
           ) : null}
           <Route path="about" element={<AboutPage />} />
@@ -81,23 +85,16 @@ function AppRouter() {
             element={
               <CartPage
                 cartItems={cartItems}
-                total={cartTotal}
-                selectedIds={selectedIds}
-                selectedTotal={selectedTotal}
+                cartTotal={cartTotal}
                 onChangeQuantity={changeQuantity}
-                onRemoveItem={removeFromCart}
-                onToggleSelected={toggleSelected}
               />
             }
           />
-          <Route
-            path="/checkout"
-            element={<CheckoutPage cartItems={cartItems} total={selectedTotal} selectedIds={selectedIds} onPlaceOrder={placeOrder} />}
-          />
+          <Route path="/checkout" element={<CheckoutPage cartItems={cartItems} total={cartTotal} />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route
             path="/checkout/success"
-            element={lastOrder ? <OrderSuccessPage order={lastOrder} /> : <Navigate to="/catalog" replace />}
+            element={lastOrder ? <OrderSuccessPage /> : <Navigate to="/catalog" replace />}
           />
         </Routes>
       ) : null}

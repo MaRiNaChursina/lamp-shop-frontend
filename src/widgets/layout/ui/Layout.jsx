@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import styles from './Layout.module.scss'
 
-function Layout({ cartItemsCount }) {
+function Layout() {
+  const cartItemsCount = useSelector((s) => s.cart.itemsCount)
   const location = useLocation()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const navLinkClass = ({ isActive }) => `${styles.menuLink} ${isActive ? styles.active : ''}`

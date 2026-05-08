@@ -1,13 +1,44 @@
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link, useParams } from 'react-router-dom'
+import { clearProductDetail, loadProductDetail } from '../../../entities/product/model/productsSlice'
 import styles from './ProductPage.module.scss'
 
-function ProductPage({ products, onAddToCart }) {
+function ProductPage({ onAddToCart }) {
   const { productId } = useParams()
-  const product = products.find((item) => item.id === productId)
+  const dispatch = useDispatch()
+  const detail = useSelector((s) => s.products.detail)
+  const detailId = useSelector((s) => s.products.detailId)
+  const detailStatus = useSelector((s) => s.products.detailStatus)
+  const detailError = useSelector((s) => s.products.error)
+
+  useEffect(() => {
+    dispatch(loadProductDetail(productId))
+    return () => {
+      dispatch(clearProductDetail())
+    }
+  }, [dispatch, productId])
+
+  const product = detailId === productId ? detail : null
   const fullStars = Math.floor(Number(product?.rating || 0))
 
+  if (detailStatus === 'loading' || detailStatus === 'idle') {
+    return (
+      <section className={styles.emptyState}>
+        <h1>Загрузка…</h1>
+        <Link to="/catalog" className={styles.backBtn}>Вернуться в каталог</Link>
+      </section>
+    )
+  }
+
   if (!product) {
-    return <section className={styles.emptyState}><h1>Товар не найден</h1><Link to="/catalog" className={styles.backBtn}>Вернуться в каталог</Link></section>
+    return (
+      <section className={styles.emptyState}>
+        <h1>{detailStatus === 'failed' ? 'Не удалось загрузить товар' : 'Товар не найден'}</h1>
+        {detailError ? <p>{detailError}</p> : null}
+        <Link to="/catalog" className={styles.backBtn}>Вернуться в каталог</Link>
+      </section>
+    )
   }
 
   return (
@@ -38,8 +69,18 @@ function ProductPage({ products, onAddToCart }) {
           <li>Цветовая температура: {product.colorTempK || 'RGB'} K</li>
           <li>Наличие: {product.stock} шт.</li>
         </ul>
-        <div className={styles.productMeta}><span className={styles.price}>{product.price} ₽</span><span className={styles.oldPrice}>{product.oldPrice} ₽</span></div>
-        <button onClick={() => onAddToCart(product)} className={styles.addBtn}>Добавить в корзину</button>
+        <div className={styles.productMeta}>
+          <span className={styles.price}>{product.price} ₽</span>
+          {product.oldPrice ? <span className={styles.oldPrice}>{product.oldPrice} ₽</span> : null}
+        </div>
+        <button
+          type="button"
+          onClick={() => onAddToCart(product)}
+          className={styles.addBtn}
+          disabled={typeof product.stock === 'number' ? product.stock < 1 : false}
+        >
+          Добавить в корзину
+        </button>
       </div>
     </section>
   )

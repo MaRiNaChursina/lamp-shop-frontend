@@ -1,18 +1,63 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { clearOrderError, submitOrder } from '../../../features/orders/model/ordersSlice'
 import styles from './CheckoutPage.module.scss'
 
-function CheckoutPage({ cartItems, total, selectedIds, onPlaceOrder }) {
+function deliveryAddressPayload(deliveryKey) {
+  if (deliveryKey === 'store') {
+    return {
+      city: 'Москва',
+      street: 'Самовывоз из магазина',
+      building: '1',
+      apartment: null,
+      postal_code: '101000',
+    }
+  }
+  if (deliveryKey === 'address') {
+    return {
+      city: 'Москва',
+      street: 'ул. Домостроителей',
+      building: '10',
+      apartment: '103',
+      postal_code: '115487',
+    }
+  }
+  return {
+    city: 'Москва',
+    street: 'ул. Уточняется менеджером',
+    building: '1',
+    apartment: '1',
+    postal_code: '101000',
+  }
+}
+
+function CheckoutPage({ cartItems, total }) {
+  const dispatch = useDispatch()
   const navigate = useNavigate()
   const location = useLocation()
   const [paymentMethod, setPaymentMethod] = useState('card')
   const [delivery, setDelivery] = useState('store')
+  const submitStatus = useSelector((s) => s.orders.submitStatus)
+  const submitError = useSelector((s) => s.orders.error)
 
   const deliveryLabel = useMemo(() => {
     if (delivery === 'store') return 'Самовывоз с магазина'
     if (delivery === 'address') return 'ул. Домостроителей, 10 кв. 103'
     return 'Добавить новый адрес'
   }, [delivery])
+
+  const closeModal = () => {
+    if (location.state?.backgroundLocation) {
+      navigate(-1)
+      return
+    }
+    navigate('/catalog')
+  }
+
+  useEffect(() => {
+    dispatch(clearOrderError())
+  }, [dispatch])
 
   if (cartItems.length === 0) {
     return (
@@ -43,19 +88,22 @@ function CheckoutPage({ cartItems, total, selectedIds, onPlaceOrder }) {
     { id: 'new', label: 'Добавить новый адрес' },
   ]
 
-  const onOrder = () => {
-    onPlaceOrder({ delivery: deliveryLabel, payment: paymentMethod })
-    navigate('/checkout/success', { state: { backgroundLocation: location.state?.backgroundLocation ?? location } })
+  const onOrder = async () => {
+    try {
+      await dispatch(
+        submitOrder({
+          delivery_address: deliveryAddressPayload(delivery),
+          payment_method: paymentMethod,
+          notes: `Доставка (UI): ${deliveryLabel}`,
+        }),
+      ).unwrap()
+      navigate('/checkout/success', { state: { backgroundLocation: location.state?.backgroundLocation ?? location } })
+    } catch {
+      // ошибка уже в store
+    }
   }
 
-  const canOrder = total > 0 && selectedIds && selectedIds.length > 0
-  const closeModal = () => {
-    if (location.state?.backgroundLocation) {
-      navigate(-1)
-      return
-    }
-    navigate('/catalog')
-  }
+  const canOrder = total > 0 && submitStatus !== 'loading'
 
   return (
     <div className={styles.modalBackdrop} role="dialog" aria-modal="true">
@@ -68,6 +116,10 @@ function CheckoutPage({ cartItems, total, selectedIds, onPlaceOrder }) {
           <h1 className={styles.modalTitle}>Оплата</h1>
           <div className={styles.modalDivider} />
         </div>
+
+        {submitError ? (
+          <div className={styles.checkoutDeliveryNote} role="alert">{submitError}</div>
+        ) : null}
 
         <div className={styles.checkoutBody}>
           <div>
@@ -127,7 +179,7 @@ function CheckoutPage({ cartItems, total, selectedIds, onPlaceOrder }) {
             onClick={onOrder}
             disabled={!canOrder}
           >
-            Заказать
+            {submitStatus === 'loading' ? 'Отправка…' : 'Заказать'}
           </button>
         </div>
       </div>

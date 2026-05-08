@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
 import styles from './CartPage.module.scss'
 
@@ -11,16 +12,7 @@ function useAuthFromStorage() {
     }
   })
 
-  const login = () => {
-    try {
-      localStorage.setItem('lampshop_auth', '1')
-    } catch {
-      // ignore storage errors
-    }
-    setIsAuthenticated(true)
-  }
-
-  return { isAuthenticated, login }
+  return { isAuthenticated, setIsAuthenticated }
 }
 
 function loadFavorites() {
@@ -34,23 +26,25 @@ function loadFavorites() {
   }
 }
 
-function CartPage({
-  cartItems,
-  selectedIds,
-  selectedTotal,
-  onChangeQuantity,
-  onToggleSelected,
-}) {
+function CartPage({ cartItems, cartTotal, onChangeQuantity }) {
   const navigate = useNavigate()
   const location = useLocation()
-  const { isAuthenticated } = useAuthFromStorage()
+  const { isAuthenticated, setIsAuthenticated } = useAuthFromStorage()
+  const cartError = useSelector((s) => s.cart.error)
 
   const [favoriteIds, setFavoriteIds] = useState(() => new Set(loadFavorites()))
 
   useEffect(() => {
-    // Если вкладки/сессии меняли избранное — синхронизируем.
     setFavoriteIds(new Set(loadFavorites()))
   }, [])
+
+  useEffect(() => {
+    try {
+      setIsAuthenticated(localStorage.getItem('lampshop_auth') === '1')
+    } catch {
+      setIsAuthenticated(false)
+    }
+  }, [location.pathname, setIsAuthenticated])
 
   const toggleFavorite = (productId) => {
     setFavoriteIds((prev) => {
@@ -66,7 +60,7 @@ function CartPage({
     })
   }
 
-  const canOrder = isAuthenticated && selectedTotal > 0
+  const canOrder = isAuthenticated && cartTotal > 0
   const closeModal = () => {
     if (location.state?.backgroundLocation) {
       navigate(-1)
@@ -89,15 +83,18 @@ function CartPage({
           <div className={styles.modalDivider} />
         </div>
 
+        {cartError ? (
+          <div className={styles.modalAuthNote} role="alert">{cartError}</div>
+        ) : null}
+
         {cartItems.length > 0 ? (
           <div className={styles.modalCartItems}>
             {cartItems.map((item) => {
-              const selected = selectedIds.includes(item.id)
               const itemTotal = item.price * item.quantity
               const isFav = favoriteIds.has(item.id)
 
               return (
-                <article className={styles.modalCartItem} key={item.id}>
+                <article className={styles.modalCartItem} key={item.lineId}>
                   <div className={styles.modalThumb} aria-hidden="true">
                     {item.imageUrl ? <img src={item.imageUrl} alt="" loading="lazy" decoding="async" /> : null}
                   </div>
@@ -117,17 +114,6 @@ function CartPage({
                   </div>
 
                   <div className={styles.modalCartItemActions}>
-                    <label className={styles.modalSelect}>
-                      <input
-                        className={styles.modalSelectInput}
-                        type="checkbox"
-                        checked={selected}
-                        onChange={() => onToggleSelected(item.id)}
-                        aria-label={`Выбрать ${item.name || 'товар'}`}
-                      />
-                      <span className={styles.modalSelectBox} aria-hidden="true" />
-                    </label>
-
                     <button
                       type="button"
                       className={`${styles.modalHeartBtn} ${isFav ? styles.modalHeartBtnOn : ''}`}
@@ -150,7 +136,7 @@ function CartPage({
                         className={styles.modalQtyBtn}
                         aria-label="Уменьшить"
                         disabled={item.quantity <= 1}
-                        onClick={() => onChangeQuantity(item.id, item.quantity - 1)}
+                        onClick={() => onChangeQuantity(item.lineId, item.quantity - 1)}
                       >
                         −
                       </button>
@@ -160,7 +146,7 @@ function CartPage({
                         className={styles.modalQtyBtn}
                         aria-label="Увеличить"
                         disabled={typeof item.stock === 'number' ? item.quantity >= item.stock : false}
-                        onClick={() => onChangeQuantity(item.id, item.quantity + 1)}
+                        onClick={() => onChangeQuantity(item.lineId, item.quantity + 1)}
                       >
                         +
                       </button>
@@ -179,7 +165,7 @@ function CartPage({
             <div className={styles.modalAuthNote}>Для заказа необходимо авторизоваться</div>
           ) : null}
 
-          <div className={styles.modalTotal}>Итог: {selectedTotal} ₽</div>
+          <div className={styles.modalTotal}>Итог: {cartTotal} ₽</div>
 
           {isAuthenticated ? (
             <button
